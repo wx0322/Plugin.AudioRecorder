@@ -203,6 +203,11 @@ namespace Plugin.AudioRecorder
 		/// Use <c>false</c> here to stop recording but do nothing further (from an error state, etc.).</param>
 		public async Task StopRecording (bool continueProcessing = true)
 		{
+			if(audioStream == null) // if null, then return.
+			{
+				return;
+			}
+
 			audioStream.Flush (); // allow the stream to send any remaining data
 			audioStream.OnBroadcast -= AudioStream_OnBroadcast;
 

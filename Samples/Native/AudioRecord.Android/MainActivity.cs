@@ -1,4 +1,4 @@
-﻿using Android.App;
+using Android.App;
 using Android.Widget;
 using Android.OS;
 using Android.Support.V7.App;
@@ -12,9 +12,9 @@ using Android.Support.V4.App;
 
 namespace AudioRecord.Android
 {
-    [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
-    public class MainActivity : AppCompatActivity
-    {
+	[Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
+	public class MainActivity : AppCompatActivity
+	{
 		AudioRecorderService recorder;
 		AudioPlayer player;
 
@@ -22,29 +22,29 @@ namespace AudioRecord.Android
 		Button playButton;
 
 		protected override void OnCreate(Bundle savedInstanceState)
-        {
-            base.OnCreate(savedInstanceState);
+		{
+			base.OnCreate(savedInstanceState);
 
-            // Set our view from the "main" layout resource
-            SetContentView(Resource.Layout.activity_main);
+			// Set our view from the "main" layout resource
+			SetContentView(Resource.Layout.activity_main);
 
 			// Get our button from the layout resource,
 			// and attach an event to it
-			recordButton = FindViewById<Button> (Resource.Id.recordButton);
-			playButton = FindViewById<Button> (Resource.Id.playButton);
+			recordButton = FindViewById<Button>(Resource.Id.recordButton);
+			playButton = FindViewById<Button>(Resource.Id.playButton);
 
 			recordButton.Click += RecordButton_Click;
 			playButton.Click += PlayButton_Click;
 
-			if (ContextCompat.CheckSelfPermission (this, Manifest.Permission.RecordAudio) != Permission.Granted)
+			if (ContextCompat.CheckSelfPermission(this, Manifest.Permission.RecordAudio) != Permission.Granted)
 			{
-				ActivityCompat.RequestPermissions (this, new String [] { Manifest.Permission.RecordAudio }, 1);
+				ActivityCompat.RequestPermissions(this, new String[] { Manifest.Permission.RecordAudio }, 1);
 			}
 		}
 
-		protected override void OnStart ()
+		protected override void OnStart()
 		{
-			base.OnStart ();
+			base.OnStart();
 
 			recorder = new AudioRecorderService
 			{
@@ -53,50 +53,51 @@ namespace AudioRecord.Android
 			};
 
 			//alternative event-based API can be used here in lieu of the returned recordTask used below
-			//recorder.AudioInputReceived += Recorder_AudioInputReceived;
+			recorder.AudioInputReceived += Recorder_AudioInputReceived;
 
-			player = new AudioPlayer ();
+			player = new AudioPlayer();
 			player.FinishedPlaying += Player_FinishedPlaying;
 
 			recordButton.Enabled = true;
 		}
 
-		async void RecordButton_Click (object sender, EventArgs e)
+		async void RecordButton_Click(object sender, EventArgs e)
 		{
-			await RecordAudio ();
+			await RecordAudio();
 		}
 
-		async Task RecordAudio ()
+		async Task RecordAudio()
 		{
 			try
 			{
 				if (!recorder.IsRecording)
 				{
-					var checkTimeout = FindViewById<CheckBox> (Resource.Id.checkBoxTimeout);
+					var checkTimeout = FindViewById<CheckBox>(Resource.Id.checkBoxTimeout);
 					recorder.StopRecordingOnSilence = checkTimeout.Checked;
 
 					recordButton.Enabled = false;
 					playButton.Enabled = false;
 
 					//the returned Task here will complete once recording is finished
-					var recordTask = await recorder.StartRecording ();
+					var recordTask = await recorder.StartRecording();
 
-					recordButton.Text = "Stop";
+					recordButton.Text = "Stop" + count++;
+
 					recordButton.Enabled = true;
 
 					var audioFile = await recordTask;
 
 					//audioFile will contain the path to the recorded audio file
 
-					recordButton.Text = "Record";
+					//recordButton.Text = "Record";
 
-					playButton.Enabled = !string.IsNullOrEmpty (audioFile);
+					//playButton.Enabled = !string.IsNullOrEmpty (audioFile);
 				}
 				else
 				{
 					recordButton.Enabled = false;
 
-					await recorder.StopRecording ();
+					await recorder.StopRecording();
 
 					recordButton.Text = "Record";
 					recordButton.Enabled = true;
@@ -109,33 +110,32 @@ namespace AudioRecord.Android
 			}
 		}
 
-		void Recorder_AudioInputReceived (object sender, string audioFile)
+		int count = 0;
+		void Recorder_AudioInputReceived(object sender, string audioFile)
 		{
-			RunOnUiThread (() =>
-			{
-				recordButton.Text = "Record";
-
-				playButton.Enabled = !string.IsNullOrEmpty (audioFile);
-			});
+			RunOnUiThread(async () =>
+		 {
+			 await RecordAudio();
+		 });
 		}
 
-		void PlayButton_Click (object sender, EventArgs e)
+		void PlayButton_Click(object sender, EventArgs e)
 		{
-			PlayRecordedAudio ();
+			PlayRecordedAudio();
 		}
 
-		void PlayRecordedAudio ()
+		void PlayRecordedAudio()
 		{
 			try
 			{
-				var filePath = recorder.GetAudioFilePath ();
+				var filePath = recorder.GetAudioFilePath();
 
 				if (filePath != null)
 				{
 					recordButton.Enabled = false;
 					playButton.Enabled = false;
 
-					player.Play (filePath);
+					player.Play(filePath);
 				}
 			}
 			catch (Exception ex)
@@ -145,7 +145,7 @@ namespace AudioRecord.Android
 			}
 		}
 
-		private void Player_FinishedPlaying (object sender, EventArgs e)
+		private void Player_FinishedPlaying(object sender, EventArgs e)
 		{
 			recordButton.Enabled = true;
 			playButton.Enabled = true;
