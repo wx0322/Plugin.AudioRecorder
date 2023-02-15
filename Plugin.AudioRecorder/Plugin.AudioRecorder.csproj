@@ -4,11 +4,11 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
+  <Import Project="..\Plugin.AudioRecorder.Shared\Plugin.AudioRecorder.Shared.projitems" Label="Shared" />
+
   <ItemGroup>
     <Reference Include="Mono.Android">
-      <HintPath>..\..\..\Kp.Apps\VisualStudio\IDE\Common7\IDE\ReferenceAssemblies\Microsoft\Framework\MonoAndroid\v8.1\Mono.Android.dll</HintPath>
+      <HintPath>..\..\wjdc\JKSY\DLL\Mono.Android.dll</HintPath>
     </Reference>
   </ItemGroup>
-
-  <Import Project="..\Plugin.AudioRecorder.Shared\Plugin.AudioRecorder.Shared.projitems" Label="Shared" />
 </Project>

@@ -2,8 +2,7 @@ using Android.Media;
 using System;
 
 namespace Plugin.AudioRecorder
-{
-	public partial class AudioPlayer
+{	public partial class AudioPlayer
 	{
 		private MediaPlayer mediaPlayer;
 
